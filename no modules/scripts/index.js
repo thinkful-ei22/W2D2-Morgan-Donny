@@ -56,12 +56,13 @@ const decorateResponse = function(response) {
     return {
       id: item.id.videoId,
       title: item.snippet.title,
-      thumbnailURL: item.snippet.thumbnails.high.url
+      thumbnailURL: item.snippet.thumbnails.high.url,
+      channelId: item.snippet.channelId
     };    
    // return videoObj;
     // return videos;
     //store.videos.push(videoObj);
-    //console.log(videoObj);
+    console.log(videoObj);
   } );
 
     addVideosToStore(videos);
@@ -78,8 +79,9 @@ const generateVideoItemHtml = function(video) {
   return `
     <li class="js-item-index-element" data-item-id="${video.id}">
       <p class="js-video-title">${video.title}</p>
-      <span class="video-thumb"><a href="https://www.youtube.com/watch?v=${video.id}"><img src='${video.thumbnailURL}'></a></span>
-    </li>`;
+      <span class="video-thumb"><a href="https://www.youtube.com/watch?v=${video.id}" data-lity><img src='${video.thumbnailURL}'></a></span>
+       <p class="js-video-channellink"><a href="https:/www.youtube.com/channel/${video.channelId}" target="_blank">Visit original channel</a></p>
+      </li>`;
 
 };
 
@@ -100,6 +102,7 @@ const addVideosToStore = function(videos) {
 // TEST IT!
 const render = function() {
    const videosList = store.videos.map(video => generateVideoItemHtml(video));
+
   $('.results').html(videosList);
 
 };
@@ -121,6 +124,7 @@ const handleFormSubmit = function() {
     const searchItem = $('#search-term').val();
     $('#search-term').val('');
     fetchVideos(searchItem, decorateResponse);
+   // fetchVideos(searchItems, )
     //console.log(videos);
     
    
