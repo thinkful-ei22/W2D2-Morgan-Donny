@@ -15,7 +15,11 @@ const API_KEY = 'AIzaSyDNzYmcCbATvwIgvnme3g_StFZ9a17CkOA';
 
 */
 const store = {
-  videos: []
+  videos: [],
+  nextPage:'',
+  currentPage:'',
+  prevPage:'',
+  searchTerm:''
 };
 
 // TASK: Add the Youtube Search API Base URL here:
@@ -27,13 +31,15 @@ const BASE_URL = 'https://www.googleapis.com/youtube/v3/search';
 // 2. Use `searchTerm` to construct the right query object based on the Youtube API docs
 // 3. Make a getJSON call using the query object and sending the provided callback in as the last argument
 // TEST IT! Execute this function and console log the results inside the callback.
-const fetchVideos = function(searchTerm, callback) {
+const fetchVideos = function(searchTerm=store.searchTerm, callback) {
   const settings = {
     url: BASE_URL,
     data: {
       key: API_KEY,
       part: 'snippet',
       q: searchTerm,
+      type:'video',
+      pageToken: store.currentPage
     },
     dataType: 'json',
     type: 'GET',
@@ -52,6 +58,11 @@ const fetchVideos = function(searchTerm, callback) {
 // TEST IT! Grab an example API response and send it into the function - make sure
 // you get back the object you want.
 const decorateResponse = function(response) {
+   console.log(response);
+  store.nextPage = response.nextPageToken;
+  store.prevPage = response.prevPageToken;
+  console.log(store.PrevPage);
+  //console.log(store.page);
   const videos = response.items.map( item => {
     return {
       id: item.id.videoId,
@@ -59,16 +70,16 @@ const decorateResponse = function(response) {
       thumbnailURL: item.snippet.thumbnails.high.url,
       channelId: item.snippet.channelId
     };    
-   // return videoObj;
+    // return videoObj;
     // return videos;
     //store.videos.push(videoObj);
-    console.log(videoObj);
+    //console.log(videoObj);
   } );
 
-    addVideosToStore(videos);
-    return videos;
+  addVideosToStore(videos);
+  return videos;
   //console.logthe(videos);
-   //addVideosToStore(videos);
+  //addVideosToStore(videos);
 };
 
 // TASK:
@@ -101,7 +112,7 @@ const addVideosToStore = function(videos) {
 // 3. Add your array of DOM elements to the appropriate DOM element
 // TEST IT!
 const render = function() {
-   const videosList = store.videos.map(video => generateVideoItemHtml(video));
+  const videosList = store.videos.map(video => generateVideoItemHtml(video));
 
   $('.results').html(videosList);
 
@@ -121,10 +132,11 @@ const render = function() {
 const handleFormSubmit = function() {
   $('form').on('click', '[type=submit]', event => {
     event.preventDefault();
-    const searchItem = $('#search-term').val();
+    store.searchTerm = $('#search-term').val();
     $('#search-term').val('');
-    fetchVideos(searchItem, decorateResponse);
-   // fetchVideos(searchItems, )
+    store.currentPage='';
+    fetchVideos(store.searchTerm, decorateResponse);
+    // fetchVideos(searchItems, )
     //console.log(videos);
     
    
@@ -132,10 +144,37 @@ const handleFormSubmit = function() {
 };
 
 
+const handleNextPageButton= function(){
+  $('.buttons').on('click', '.nextPageButton', () => {
+    //event.preventDefault();
+    console.log('button works');
+    store.currentPage = store.nextPage;
+    fetchVideos(store.searchTerm, decorateResponse);
+
+  });
+}
+
+const handlePrevPageButton= function(){
+  $('.buttons').on('click', '.prevPageButton', () => {
+    //event.preventDefault();
+    console.log('button works');
+    store.currentPage = store.prevPage;
+    fetchVideos(store.searchTerm, decorateResponse);
+
+  });
+}
+
+
+
+
+
+
 // When DOM is ready:
 $(function () {
   handleFormSubmit();
   render();
+  handleNextPageButton();
+  handlePrevPageButton();
   // TASK:
   // 1. Run `handleFormSubmit` to bind the event listener to the DOM
 });
