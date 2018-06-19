@@ -7,7 +7,7 @@ IMPLEMENTED:
 * Get JSON from the YouTube API based on the user search term
 * Display the thumbnail image of the returned videos
 
-Optional Advanced functionality :
+Including Optional Advanced functionality :
 
 * Video opens in lightbox
 * Link to video channel
