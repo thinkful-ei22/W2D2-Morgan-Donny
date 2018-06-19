@@ -58,12 +58,12 @@ const fetchVideos = function(searchTerm=store.searchTerm, callback) {
 // TEST IT! Grab an example API response and send it into the function - make sure
 // you get back the object you want.
 const decorateResponse = function(response) {
-   console.log(response);
+  // console.log(response);
   store.nextPage = response.nextPageToken;
   store.prevPage = response.prevPageToken;
-  console.log(store.PrevPage);
+  //console.log(store.PrevPage);
   //console.log(store.page);
-  const videos = response.items.map( item => {
+  return response.items.map( item => {
     return {
       id: item.id.videoId,
       title: item.snippet.title,
@@ -76,8 +76,8 @@ const decorateResponse = function(response) {
     //console.log(videoObj);
   } );
 
-  addVideosToStore(videos);
-  return videos;
+  //addVideosToStore(videos);
+  //return videos;
   //console.logthe(videos);
   //addVideosToStore(videos);
 };
@@ -135,7 +135,12 @@ const handleFormSubmit = function() {
     store.searchTerm = $('#search-term').val();
     $('#search-term').val('');
     store.currentPage='';
-    fetchVideos(store.searchTerm, decorateResponse);
+   // fetchVideos(store.searchTerm, decorateResponse);
+    fetchVideos(store.searchTerm, function(response){
+      const videos = decorateResponse(response);
+      addVideosToStore(videos);
+      render();
+    });
     // fetchVideos(searchItems, )
     //console.log(videos);
     
@@ -149,7 +154,11 @@ const handleNextPageButton= function(){
     //event.preventDefault();
     console.log('button works');
     store.currentPage = store.nextPage;
-    fetchVideos(store.searchTerm, decorateResponse);
+    fetchVideos(store.searchTerm, function(response){
+      const videos = decorateResponse(response);
+      addVideosToStore(videos);
+      render();
+    });
 
   });
 }
@@ -159,18 +168,31 @@ const handlePrevPageButton= function(){
     //event.preventDefault();
     console.log('button works');
     store.currentPage = store.prevPage;
-    fetchVideos(store.searchTerm, decorateResponse);
+    fetchVideos(store.searchTerm, function(response){
+      const videos = decorateResponse(response);
+      addVideosToStore(videos);
+      render();
+    });
 
   });
 }
 
 
 
+const firstLoad=function(){
+  store.searchTerm='Cyberpunk 1990';
+  fetchVideos(store.searchTerm, function(response){
+    const videos = decorateResponse(response);
+    addVideosToStore(videos);
+    render();
+  });
 
+}
 
 
 // When DOM is ready:
 $(function () {
+  firstLoad();
   handleFormSubmit();
   render();
   handleNextPageButton();
