@@ -1,4 +1,6 @@
-const API_KEY = 'YOUR_KEY_HERE';
+'use strict';
+
+const API_KEY = 'AIzaSyDNzYmcCbATvwIgvnme3g_StFZ9a17CkOA';
 
 /*
   We want our store to hold a `videos` array of "decorated" objects - i.e. objects that
@@ -18,7 +20,7 @@ const store = {
 
 // TASK: Add the Youtube Search API Base URL here:
 // Documentation is here: https://developers.google.com/youtube/v3/docs/search/list#usage
-const BASE_URL = '';
+const BASE_URL = 'https://www.googleapis.com/youtube/v3/search';
 
 // TASK:
 // 1. Create a `fetchVideos` function that receives a `searchTerm` and `callback`
@@ -26,7 +28,19 @@ const BASE_URL = '';
 // 3. Make a getJSON call using the query object and sending the provided callback in as the last argument
 // TEST IT! Execute this function and console log the results inside the callback.
 const fetchVideos = function(searchTerm, callback) {
-
+  const settings = {
+    url: BASE_URL,
+    data: {
+      key: API_KEY,
+      part: 'snippet',
+      q: searchTerm,
+    },
+    dataType: 'json',
+    type: 'GET',
+    success: callback
+  };
+  $.ajax(settings);
+  //console.log($.ajax(settings));
 };
 
 // TASK:
@@ -38,7 +52,15 @@ const fetchVideos = function(searchTerm, callback) {
 // TEST IT! Grab an example API response and send it into the function - make sure
 // you get back the object you want.
 const decorateResponse = function(response) {
-
+  response.items.map( item => {
+    const videoObj = {
+      id: item.id.videoId,
+      title: item.snippet.title,
+      thumbnailURL: item.snippet.thumbnails.high.url
+    };    
+    store.videos.push(videoObj);
+    console.log(videoObj);
+  } );
 };
 
 // TASK:
@@ -78,8 +100,15 @@ const render = function() {
 //   g) Inside the callback, run the `render` function 
 // TEST IT!
 const handleFormSubmit = function() {
-
+  $('form').on('click', '[type=submit]', event => {
+    event.preventDefault();
+    const searchItem = $('#search-term').val();
+    $('#search-term').val('');
+    fetchVideos(searchItem, decorateResponse);
+    console.log(searchItem);
+  });
 };
+handleFormSubmit();
 
 // When DOM is ready:
 $(function () {
